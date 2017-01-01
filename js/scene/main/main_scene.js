@@ -1,4 +1,4 @@
-var Scene=function(game){
+var MainScene=function(game){
     var s={
         game:game,
 
@@ -27,7 +27,8 @@ var Scene=function(game){
         }
         //game over
         if(ball.y+ball.h+ball.vy>300){
-            let endScene=SceneEnd(game)
+
+            let endScene= new SceneEnd(game)
             game.replaceScene(endScene)
         }
 
@@ -40,9 +41,7 @@ var Scene=function(game){
         for (var i = 0; i < blocks.length; i++) {
             var block = blocks[i];
             ball.bounce(block.alive && ball.collide(block),block)
-            log(ball.collide(block))
             if(block.alive && ball.collide(block)){
-                log()
                 block.kill()
                 score+=100
             }

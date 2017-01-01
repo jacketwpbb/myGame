@@ -41,7 +41,7 @@ var __main = function () {
         paddle:'img/paddle.png',
     }
     var game = Game(images,function(game){
-        game.scene=Scene(game)
+        game.scene=new SceneTitle(game)
     })
     enableDebugMode(game,true)
 
