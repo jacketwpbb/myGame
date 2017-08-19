@@ -1,24 +1,186 @@
 <!doctype html>
-<html >
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+        }
+
+        #my-canvas {
+            border: 1px solid #000;
+            margin: 10px auto;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-        <canvas id="my-canvas" width="400" height="300"></canvas>
+<canvas id="my-canvas" width="400" height="300"></canvas>
 </body>
 <script>
-    var log=console.log.bind(console)
-    var cvs=document.querySelector("#my-canvas")
-    var ctx=cvs.getContext("2d")
-    var img=new Image()
-    img.src="./img/fancy-ball.png"
-    img.onload=function(){
-        ctx.drawImage(img,0,0)
+    var log = console.log.bind(console)
+
+    var imageFromPath = function (path) {
+        var img = new Image()
+        img.src = path
+        return img
     }
+    var leftAInB=function(a,b){
+        var x1=a.x,
+            y1=a.y,
+            w1=a.width,
+            h1=a.height,
+            x2=b.x,
+            y2=b.y,
+            w2=b.width,
+            h2=b.height;
+        if((x1>=x2)&&(x1<=x2+w2)){
+            return (y1>=y2&&y1<=y2+h2)||(y1+h1>=y2&&y1+h1<=y2+h2)
+        }else{
+            return false
+        }
+
+
+    }
+    var Game = function () {
+        var g = {
+            //储存要激活的按键
+            actions: {},
+            //key status
+            keydowns: {},
+        }
+        var cvs = document.querySelector('#my-canvas')
+        var ctx = cvs.getContext('2d')
+        g.canvas = cvs
+        g.context = ctx
+        g.drawImage=function(element){
+            g.context.drawImage(element.image, element.x, element.y)
+        }
+        g.draw=function(){}
+        //events
+        window.addEventListener('keydown', function (event) {
+            g.keydowns[event.key] = true
+        })
+        window.addEventListener('keyup', function (event) {
+            g.keydowns[event.key] = false
+        })
+        //注册按键
+        g.registerAction = function (key, callback) {
+            g.actions[key] = callback
+        }
+
+        //timer
+        setInterval(function () {
+            //events
+            var actions = Object.keys(g.actions)
+            for (var i = 0; i < actions.length; i++) {
+                var key = actions[i];
+                if(g.keydowns[key]){
+                    //如果按键被按下，执行相应的函数
+                    g.actions[key]()
+                }
+            }
+            //update
+            g.update()
+            //clear
+            ctx.clearRect(0,0,cvs.width,cvs.height)
+            //draw
+            g.draw()
+        }, 1000 / 30)
+        return g
+
+    }
+    var Paddle = function () {
+        var image = imageFromPath("./img/paddle.png")
+        var o = {
+            image: image,
+            x: 100,
+            y: 250,
+            speed: 10,
+            width: image.width,
+            height: image.height,
+        }
+        o.moveLeft = function () {
+            this.x -= this.speed
+            if (this.x < 0) {
+                this.x = 0
+            }
+        }
+        o.moveRight = function () {
+            this.x += this.speed
+
+        }
+        o.collide=function(ball){
+            return leftAInB(ball,o)||leftAInB(o,ball)
+        }
+        return o
+    }
+    var Ball = function () {
+        var image = imageFromPath("./img/ball.png")
+        var o = {
+            image: image,
+            x: 100,
+            y: 150,
+            vx: 3,
+            vy: 3,
+            width: image.width,
+            height: image.height,
+            fired:false,
+        }
+        o.move = function () {
+            if(o.fired){
+                if(o.x<0||o.x>400-o.width){
+                    o.vx*=-1
+                }
+                //这里不能用else if 因为两个不是互斥的
+                if(o.y<0||o.y>300-o.height){
+                    o.vy*=-1
+                }
+                o.x+=o.vx
+                o.y+=o.vy
+            }
+
+        }
+        o.bounce=function(){
+            o.vy*=-1
+        }
+        return o
+    }
+    var __main = function () {
+        var game = Game()
+        var paddle = Paddle()
+        var ball=Ball()
+        game.registerAction("a",function(){
+            paddle.moveLeft()
+        })
+        game.registerAction("d",function(){
+            paddle.moveRight()
+        })
+        game.registerAction("f",function(){
+            ball.fired=true
+        })
+        game.update=function(){
+            ball.move()
+            //collide
+            if(paddle.collide(ball)){
+//                这里应该调用ball反弹函数
+//                ball.vy*=-1;
+                ball.bounce();
+            }
+        }
+
+        game.draw = function () {
+            game.drawImage(paddle)
+            game.drawImage(ball)
+        }
+
+    }
+    __main()
 
 </script>
 </html>
