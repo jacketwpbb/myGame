@@ -30,22 +30,19 @@
         img.src = path
         return img
     }
-    var leftAInB=function(a,b){
+    var collideX=function(a,b){
         var x1=a.x,
-            y1=a.y,
             w1=a.width,
-            h1=a.height,
             x2=b.x,
+            w2=b.width;
+        return (x1>=x2&&x1<=x2+w2)||(x2>=x1&&x2<=x1+w1);
+    }
+    var collideY=function(a,b){
+        var y1=a.y,
+            h1=a.height,
             y2=b.y,
-            w2=b.width,
             h2=b.height;
-        if((x1>=x2)&&(x1<=x2+w2)){
-            return (y1>=y2&&y1<=y2+h2)||(y1+h1>=y2&&y1+h1<=y2+h2)
-        }else{
-            return false
-        }
-
-
+        return (y1>=y2&&y1<=y2+h2)||(y2>=y1&&y2<=y1+h1);
     }
     var Game = function () {
         var g = {
@@ -91,7 +88,7 @@
             ctx.clearRect(0,0,cvs.width,cvs.height)
             //draw
             g.draw()
-        }, 1000 / 30)
+        }, 1000 / 60)
         return g
 
     }
@@ -101,23 +98,24 @@
             image: image,
             x: 100,
             y: 250,
-            speed: 10,
+            speed: 4,
             width: image.width,
             height: image.height,
+            speedStatus:4,
         }
         o.moveLeft = function () {
-            this.x -= this.speed
+            o.x -= this.speed
+            o.speedStatus=-o.speed;
             if (this.x < 0) {
                 this.x = 0
             }
         }
         o.moveRight = function () {
-            this.x += this.speed
+            o.x += this.speed
+            o.speedStatus=o.speed;
 
         }
-        o.collide=function(ball){
-            return leftAInB(ball,o)||leftAInB(o,ball)
-        }
+
         return o
     }
     var Ball = function () {
@@ -126,11 +124,12 @@
             image: image,
             x: 100,
             y: 150,
-            vx: 3,
-            vy: 3,
+            vx: 6,
+            vy: 6,
             width: image.width,
             height: image.height,
             fired:false,
+            collision:0,
         }
         o.move = function () {
             if(o.fired){
@@ -146,15 +145,110 @@
             }
 
         }
-        o.bounce=function(){
-            o.vy*=-1
+        o.collide=function(paddle){
+            var y1=paddle.y,
+                x1=paddle.x,
+                h1=paddle.height,
+                w1=paddle.width,
+                x2=o.x,
+                y2=o.y,
+                w2=o.width,
+                h2=o.height,
+                vy=o.vy,
+                vx=o.vx,
+                v2x=paddle.vx,
+                v2y=paddle.vy;
+            if(collideX(paddle,o)&&collideY(o,paddle)){
+
+                var status={
+                    leftOrRight:false,
+                    topOrBottom:false,
+                    both:false,
+                }
+                //左右侧碰撞
+                if((vy>0&&(y2+h2-vy)>=y1&&(y2+h2-vy)<=(y1+h1))||(vy<0&&(y2-vy)>=y1&&(y2-vy)<=y1+h1)){
+                   status.leftOrRight=true
+                }
+                //左右侧碰撞
+                if((vx>0&&(x2+w2-vx)>=x1&&(x2+w2-vx)<=(x1+w1))||(vx<=0&&(x2-vx)>=x1&&(x2-vx)<=x1+w1)){
+                    status.topOrBottom=true
+                }
+                if(status.topOrBottom&&status.leftOrRight){
+                    return 2
+                }else if(status.leftOrRight){
+                    return 1
+                }else if(status.topOrBottom){
+                    return 3
+                }
+
+
+            }else{
+//                o.collision=0
+                return false
+            }
         }
+        o.bounce=function(status,paddle){
+
+            switch (status){
+                case 1:
+                    o.vx*=-1
+                    break;
+                case 2:
+                    if(o.collision=0){
+                        o.vy*=-1
+                        o.vx*=-1
+                        o.collision++
+                    }else if(paddle){
+                        o.y=o.vy>0?(paddle.y-o.height):(paddle.y+paddle.height)
+                        o.x=paddle.speedStatus<0?(paddle.x-o.width):(paddle.x+paddle.width)
+                        o.vy*=-1
+                        o.vx*=-1
+                        o.collision=0
+                    }
+
+                    break;
+                case 3:
+                    o.vy*=-1
+                    break;
+                case 4:
+                    break;
+            }
+
+        }
+        return o
+    }
+    var Block = function () {
+        var image = imageFromPath("./img/block.png")
+        var o = {
+            image: image,
+            x: 40,
+            y: 40,
+            vx: 5,
+            vy: 5 ,
+            width: image.width,
+            height: image.height,
+            alive:true,
+        }
+        o.kill=function(collide){
+            if(collide){
+                o.alive=false
+            }
+        }
+
         return o
     }
     var __main = function () {
         var game = Game()
         var paddle = Paddle()
         var ball=Ball()
+        var blocks=[]
+        for (var i = 0; i < 3; i++) {
+            var b = Block()
+            b.x=i*100
+            blocks.push(b)
+
+        }
+        var block=Block()
         game.registerAction("a",function(){
             paddle.moveLeft()
         })
@@ -164,19 +258,44 @@
         game.registerAction("f",function(){
             ball.fired=true
         })
+        window.addEventListener("keyup",function(event){
+            if(event.key==="p"){
+                game.pause=!game.pause
+            }
+        })
+
         game.update=function(){
+            if(game.pause){
+                return
+            }
             ball.move()
             //collide
-            if(paddle.collide(ball)){
-//                这里应该调用ball反弹函数
-//                ball.vy*=-1;
-                ball.bounce();
+//            log(ball.collide(paddle))
+            ball.bounce(ball.collide(paddle),paddle)
+
+            for (var i = 0; i < blocks.length; i++) {
+                var block = blocks[i];
+                ball.bounce(block.alive&&ball.collide(block))
+                block.kill(ball.collide(block))
+
             }
+
+
         }
 
         game.draw = function () {
-            game.drawImage(paddle)
             game.drawImage(ball)
+            game.drawImage(paddle)
+            for (var i = 0; i < blocks.length; i++) {
+                var b = blocks[i];
+                if(b.alive){
+                    game.drawImage(b)
+                }
+
+            }
+
+
+
         }
 
     }
