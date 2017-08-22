@@ -9,7 +9,6 @@ var Ball = function () {
         width: image.width,
         height: image.height,
         fired:false,
-        collision:0,
     }
     o.move = function () {
         if(o.fired){
@@ -89,18 +88,18 @@ var Ball = function () {
                 o.vx*=-1
                 break;
             case 2:
-                log(o.collision)
-                if(o.collision===0){
-                    o.vy*=-1
-                    o.vx*=-1
-                    o.collision++
-                }else if(o.collision!==0&&paddle){
 
-                    o.y=o.vy>0?(paddle.y-o.height):(paddle.y+paddle.height)
-                    o.x=paddle.speedStatus<0?(paddle.x-o.width):(paddle.x+paddle.width)
+                var isInside=o.vy>0?((o.height+o.y-paddle.y)>o.vy):((paddle.height+paddle.y-o.y)>-o.vy)
+                log(isInside)
+                if(!isInside){
                     o.vy*=-1
                     o.vx*=-1
-                    o.collision=0
+                }else if(isInside){
+                    var isLeft=Math.abs(o.x+o.width-paddle.x)<Math.abs(o.x-paddle.x-paddle.width)
+                    o.y=o.vy>0?(paddle.y-o.height-1):(paddle.y+paddle.height+1)
+                    o.x=isLeft?(paddle.x-o.width):(paddle.x+paddle.width)
+                    o.vx*=-1
+                    o.vy*=-1
                 }
 
                 break;
