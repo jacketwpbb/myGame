@@ -6,10 +6,6 @@ var Block = function (position) {
         image: image,
         x: p[0],
         y: p[1],
-        vx: 5,
-        vy: 5,
-        width: image.width,
-        height: image.height,
         alive: true,
         health: p[2] || 0,
     }
@@ -19,6 +15,5 @@ var Block = function (position) {
             o.alive = false
         }
     }
-
     return o
 }

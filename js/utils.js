@@ -7,16 +7,16 @@ var imageFromPath = function (path) {
 }
 var collideX=function(a,b){
     var x1=a.x,
-        w1=a.width,
+        w1=a.image.width,
         x2=b.x,
-        w2=b.width;
+        w2=b.image.width;
     return (x1>=x2&&x1<=x2+w2)||(x2>=x1&&x2<=x1+w1);
 }
 var collideY=function(a,b){
     var y1=a.y,
-        h1=a.height,
+        h1=a.image.height,
         y2=b.y,
-        h2=b.height;
+        h2=b.image.height;
     return (y1>=y2&&y1<=y2+h2)||(y2>=y1&&y2<=y1+h1);
 }
 

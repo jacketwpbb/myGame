@@ -92,10 +92,9 @@
             ball.move()
             //collide
             ball.bounce(ball.collide(paddle), paddle)
-
             for (var i = 0; i < blocks.length; i++) {
                 var block = blocks[i];
-                ball.bounce(block.alive && ball.collide(block))
+                ball.bounce(block.alive && ball.collide(block),block)
                 if(ball.collide(block)){
                     block.kill()
                 }

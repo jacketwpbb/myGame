@@ -5,8 +5,6 @@ var Paddle = function () {
         x: 100,
         y: 250,
         speed: 8,
-        width: image.width,
-        height: image.height,
         speedStatus:4,
     }
     o.moveLeft = function () {
