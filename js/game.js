@@ -1,9 +1,12 @@
-var Game = function (fps) {
+var Game = function (imgsToLoad,runCallback) {
+    //imgsToLoad是一个对象，里面储存所有要加载的图片的引用名字和路径
+    //程序会在图片加载完后才运行
     var g = {
         //储存要激活的按键
         actions: {},
         //key status
         keydowns: {},
+        images:{},
     }
     var cvs = document.querySelector('#my-canvas')
     var ctx = cvs.getContext('2d')
@@ -44,7 +47,41 @@ var Game = function (fps) {
         g.draw()
         setTimeout(runloop,1000/window.fps)
     }
-    setTimeout(runloop,1000/window.fps)
+    //预先载入图片
+    var loads=[]
+    var names=Object.keys(imgsToLoad)
+    for (var i = 0; i < names.length; i++) {
+        let name=names[i]
+        var path = imgsToLoad[name]
+        let img=new Image()
+        img.src=path
+
+        img.onload=function(){
+             //所有图片载入成功后
+            g.images[name]=img
+            loads.push(1)
+            if(loads.length===names.length){
+                g.run()
+            }
+
+        }
+
+    }
+    //载入图片
+    g.imageByName=function(name){
+        var img=g.images[name]
+        var o={
+            image:img,
+            w:img.width,
+            h:img.height
+        }
+        return o
+    }
+    //开始运行程序
+    g.run=function(){
+        runCallback(g)
+        setTimeout(runloop,1000/window.fps)
+    }
 
     return g
 
