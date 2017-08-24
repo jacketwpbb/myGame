@@ -21,7 +21,6 @@ var Paddle = function (game) {
     o.moveRight = function () {
         o.x += this.speed
         o.speedStatus=o.speed;
-
     }
 
     return o
