@@ -43,7 +43,7 @@ var __main = function () {
         paddle:'img/paddle.png',
     }
     var game = Game(images,function(game){
-        enableDebugMode(game,true)
+
         var paddle = Paddle(game)
 
         var ball = Ball(game)
@@ -80,7 +80,39 @@ var __main = function () {
 
         }
 
+        //mouse event鼠标拖拽
+        var enableDrag=false
+        game.canvas.addEventListener('mousedown',(event)=>{
+            var x=event.offsetX
+            var y=event.offsetY
+            //检查是否点中了ball
+            if(ball.hasPoint(x,y)){
+                //设置拖拽状态
+                enableDrag=true
+            }
+        })
+        game.canvas.addEventListener('mousemove',(event)=>{
+            var x=event.offsetX
+            var y=event.offsetY
+            if(enableDrag){
+                ball.x=x
+                ball.y=y
+            }
+
+        })
+        game.canvas.addEventListener('mouseup',(event)=>{
+            var x=event.offsetX
+            var y=event.offsetY
+            enableDrag=false
+        })
+
+        //开始画
         game.draw = function () {
+            //background
+            game.context.fillStyle="#ccc"
+            game.context.fillRect(0,0,400,300)
+
+            //draw
             game.drawImage(ball)
             game.drawImage(paddle)
             for (var i = 0; i < blocks.length; i++) {
@@ -90,11 +122,12 @@ var __main = function () {
                 }
 
             }
+            //label
             game.context.fillText('分数'+score,10,290)
 
         }
     })
-
+    enableDebugMode(game,true)
 
 
 }

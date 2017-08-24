@@ -50,7 +50,7 @@ var Game = function (imgsToLoad,runCallback) {
     //预先载入图片
     var loads=[]
     var names=Object.keys(imgsToLoad)
-    for (var i = 0; i < names.length; i++) {
+    for (let i = 0; i < names.length; i++) {
         let name=names[i]
         var path = imgsToLoad[name]
         let img=new Image()

@@ -106,5 +106,8 @@ var Ball = function (game) {
         }
 
     }
+    o.hasPoint=function(x,y){
+        return (x<o.x+o.h&&x>o.x)&&(y>o.y&&y<o.y+o.h)
+    }
     return o
 }
