@@ -13,7 +13,6 @@ var SceneEnd=function(game){
     game.registerAction("Enter", function () {
           let scene=new Scene(game)
           game.replaceScene(scene)
-
     })
 
     s.update=function () {
@@ -25,7 +24,8 @@ var SceneEnd=function(game){
         game.context.fillRect(0,0,400,300)
 
         //label
-        game.context.font="30px solid black"
+        game.context.font="30px solid "
+        game.context.fillStyle="black"
         game.context.fillText('Game Over!',100,150)
     }
 
