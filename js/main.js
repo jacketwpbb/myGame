@@ -12,7 +12,7 @@ var loadLevel = function (game,n) {
 
 var pause=false
 var fps=5
-// var score=0
+var blocks=0
 
 var enableDebugMode=function(game,enable){
     if(!enable){
@@ -24,6 +24,7 @@ var enableDebugMode=function(game,enable){
             pause = !pause
         }
         if ('1234567'.includes(key)) {
+
             blocks = loadLevel(game,key)
         }
     })
@@ -33,9 +34,6 @@ var enableDebugMode=function(game,enable){
     })
 }
 var __main = function () {
-
-
-
     //要载入的图片
     var images={
         ball:'img/ball.png',
@@ -43,22 +41,7 @@ var __main = function () {
         paddle:'img/paddle.png',
     }
     var game = Game(images,function(game){
-
-        var scene=Scene(game)
-        game.update = function () {
-            if (pause) {
-                return
-            }
-            scene.update()
-
-        }
-
-
-        //开始画
-        game.draw = function () {
-            scene.draw()
-
-        }
+        game.scene=Scene(game)
     })
     enableDebugMode(game,true)
 

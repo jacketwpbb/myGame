@@ -21,7 +21,6 @@ var Ball = function (game) {
                 }
                 if(o.x>400-o.w){
                     o.x=400-o.w
-
                 }
             }
             //这里不能用else if 因为两个不是互斥的
@@ -72,6 +71,8 @@ var Ball = function (game) {
                 return 1
             }else if(status.topOrBottom){
                 return 3
+            }else{
+                return 2
             }
 
 
@@ -90,7 +91,6 @@ var Ball = function (game) {
                     o.vy*=-1
                     o.vx*=-1
                 }else if(isInside){
-                    log(paddle)
                     var isLeft=Math.abs(o.x+o.w-paddle.x)<Math.abs(o.x-paddle.x-paddle.w)
                     o.y=o.vy>0?(paddle.y-o.h-1):(paddle.y+paddle.h+1)
                     o.x=isLeft?(paddle.x-o.w):(paddle.x+paddle.w)

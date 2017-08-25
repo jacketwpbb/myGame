@@ -7,6 +7,7 @@ var Game = function (imgsToLoad,runCallback) {
         //key status
         keydowns: {},
         images:{},
+        scene:null,
     }
     var cvs = document.querySelector('#my-canvas')
     var ctx = cvs.getContext('2d')
@@ -15,8 +16,19 @@ var Game = function (imgsToLoad,runCallback) {
     g.drawImage=function(element){
         g.context.drawImage(element.image, element.x, element.y)
     }
-    g.draw=function(){}
-    g.update=function(){}
+    g.update=function(){
+        g.scene.update()
+    }
+    g.draw=function(){
+        g.scene.draw()
+    }
+    //替换游戏场景
+    g.replaceScene=function (scene) {
+        g.scene=scene
+        //还需要把事件监放到场景中
+        //注销掉场景的事件监听
+    }
+
     //events
     window.addEventListener('keydown', function (event) {
         g.keydowns[event.key] = true
@@ -63,9 +75,7 @@ var Game = function (imgsToLoad,runCallback) {
             if(loads.length===names.length){
                 g.run()
             }
-
         }
-
     }
     //载入图片
     g.imageByName=function(name){

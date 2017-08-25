@@ -8,7 +8,7 @@ var Scene=function(game){
     var score=0
     var paddle = Paddle(game)
     var ball = Ball(game)
-    var blocks = loadLevel(game,1)
+    blocks = loadLevel(game,1)
 
     //注册按键
     game.registerAction("a", function () {
@@ -22,13 +22,27 @@ var Scene=function(game){
     })
 
     s.update=function(){
+        if (pause) {
+            return
+        }
+        //game over
+        if(ball.y+ball.h+ball.vy>300){
+            let endScene=SceneEnd(game)
+            game.replaceScene(endScene)
+        }
+
         ball.move()
+
+
+
         //collide
         ball.bounce(ball.collide(paddle), paddle)
         for (var i = 0; i < blocks.length; i++) {
             var block = blocks[i];
             ball.bounce(block.alive && ball.collide(block),block)
+            log(ball.collide(block))
             if(block.alive && ball.collide(block)){
+                log()
                 block.kill()
                 score+=100
             }
@@ -76,6 +90,7 @@ var Scene=function(game){
 
         }
         //label
+        game.context.fillStyle="black"
         game.context.fillText('分数'+score,10,290)
     }
 
